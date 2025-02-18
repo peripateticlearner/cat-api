@@ -59,6 +59,49 @@ initialLoad();
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
 
+async function fetchBreedImages() {
+    const breedId = breedSelect.value;
+  
+    try {
+      const res = await fetch(
+        `https://api.thecatapi.com/v1/images/search?breed_ids=${breedId}&limit=5`,
+        { headers: { "x-api-key": API_KEY } }
+      );
+      const catImgs = await res.json();
+  
+      // Clear previous data
+      Carousel.clear();
+      infoDump.innerHTML = "";
+  
+      catImgs.forEach((catImgObj) => {
+        const carouselItem = Carousel.createCarouselItem(
+          catImgObj.url,
+          "Cat Image",
+          catImgObj.id
+        );
+        Carousel.appendCarousel(carouselItem);
+      });
+  
+      // Display breed info
+      const breedInfo = catImgs[0]?.breeds[0];
+      if (breedInfo) {
+        infoDump.innerHTML = `
+          <h3>${breedInfo.name}</h3>
+          <p><strong>Temperament:</strong> ${breedInfo.temperament}</p>
+          <p><strong>Life Span:</strong> ${breedInfo.life_span} years</p>
+          <p>${breedInfo.description}</p>
+        `;
+      }
+  
+      Carousel.start();
+    } catch (e) {
+      console.error("Error fetching breed images details:", e);
+    }
+  }
+  
+  // Add event listener
+  breedSelect.addEventListener("change", fetchBreedImages);  
+
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
  */
